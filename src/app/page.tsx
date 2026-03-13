@@ -1191,8 +1191,8 @@ function BuyerConfirmScreen({ txData, vendor, onConfirm }: { txData: TxData; ven
     },
     {
       id: "split",
-      title: "⚖️ 50 / 50 Split",
-      desc: "Pay half now to confirm the order. Pay the remaining half on delivery.",
+      title: "⚖️ Flex Advance",
+      desc: "Pay in full upfront. 50% is released to the vendor immediately, and 50% is held in escrow until you confirm delivery.",
       risk: "Balanced Risk",
       riskClass: "risk-mid",
     },
@@ -1269,7 +1269,7 @@ function BuyerConfirmScreen({ txData, vendor, onConfirm }: { txData: TxData; ven
 // ─── SCREEN 4: CONFIRMATION ───────────────────────────────────────────────────
 function ConfirmationScreen({ vendor, txData, paymentModel, onTrack }: { vendor: Vendor; txData: TxData; paymentModel: string; onTrack: () => void }) {
   const refNum = "NOVA-" + Math.random().toString(36).substring(2, 8).toUpperCase();
-  const modelLabels: Record<string, string> = { escrow: "Escrow Hold", split: "50/50 Split", upfront: "Full Upfront" };
+  const modelLabels: Record<string, string> = { escrow: "Escrow Hold", split: "Flex Advance", upfront: "Full Upfront" };
 
   return (
     <div className="screen success-animation">
