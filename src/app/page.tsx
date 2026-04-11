@@ -31,6 +31,13 @@ export interface VendorReview {
   text: string;
 }
 
+export interface CatalogueItem {
+  id: string;
+  title: string;
+  price: string;
+  image: string;
+}
+
 export interface Vendor {
   name: string;
   handle: string;
@@ -43,6 +50,7 @@ export interface Vendor {
   verification: VendorVerification[];
   sales: VendorSales[];
   reviews: VendorReview[];
+  catalogue: CatalogueItem[];
 }
 
 export interface TxData {
@@ -802,6 +810,134 @@ const styles = `
 
   .mini-star:hover { transform: scale(1.15); }
 
+  /* DIRECTORY STYLES */
+  .search-container {
+    background: white;
+    padding: 12px 16px;
+    border-radius: 12px;
+    margin-bottom: 16px;
+    box-shadow: 0 2px 10px rgba(15,22,40,0.05);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .search-input {
+    flex: 1;
+    border: none;
+    outline: none;
+    font-size: 14px;
+    font-family: sans-serif;
+    color: ${theme.navy};
+  }
+
+  .search-input::placeholder { color: ${theme.slate}; }
+
+  .vendor-list {
+    display: grid;
+    gap: 12px;
+  }
+
+  .vendor-list-card {
+    background: white;
+    border-radius: 16px;
+    padding: 16px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    cursor: pointer;
+    transition: transform 0.2s, box-shadow 0.2s;
+    box-shadow: 0 2px 8px rgba(15,22,40,0.04);
+  }
+
+  .vendor-list-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 16px rgba(15,22,40,0.08);
+
+  }
+
+  .vendor-list-info { flex: 1; }
+  .vendor-list-name { font-size: 15px; font-weight: 700; color: ${theme.navy}; display: flex; align-items: center; gap: 6px; }
+  .vendor-list-handle { font-size: 12px; color: ${theme.slate}; margin-top: 2px; }
+  .vendor-list-meta { font-size: 11px; color: ${theme.slate}; margin-top: 6px; display: flex; gap: 10px; }
+
+  /* PROFILE TABS */
+  .profile-tabs {
+    display: flex;
+    border-bottom: 1px solid #E2E8F0;
+    margin: 10px 0 16px;
+  }
+
+  .profile-tab {
+    flex: 1;
+    text-align: center;
+    padding: 12px 0;
+    font-size: 13px;
+    font-family: sans-serif;
+    font-weight: 600;
+    color: ${theme.slate};
+    cursor: pointer;
+    position: relative;
+    transition: color 0.2s;
+  }
+
+  .profile-tab.active {
+    color: ${theme.teal};
+  }
+
+  .profile-tab.active::after {
+    content: '';
+    position: absolute;
+    bottom: -1px;
+    left: 20%;
+    right: 20%;
+    height: 3px;
+    background: ${theme.teal};
+    border-radius: 3px 3px 0 0;
+  }
+
+  /* CATALOGUE */
+  .catalogue-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+
+  .catalogue-item {
+    background: white;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(15,22,40,0.04);
+  }
+
+  .catalogue-img {
+    width: 100%;
+    aspect-ratio: 1;
+    background-size: cover;
+    background-position: center;
+    background-color: #F1F5F9;
+  }
+
+  .catalogue-info {
+    padding: 10px;
+  }
+
+  .catalogue-title {
+    font-size: 11px;
+    color: ${theme.navy};
+    font-weight: 500;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    margin-bottom: 4px;
+  }
+
+  .catalogue-price {
+    font-size: 12px;
+    font-weight: 700;
+    color: ${theme.teal};
+  }
+
   .nav-tabs {
     display: flex;
     background: white;
@@ -917,15 +1053,21 @@ const vendors: Record<string, Vendor> = {
       { label: "Location Confirmed", desc: "Lagos, Nigeria" },
     ],
     sales: [
-      { label: "TikTok", pct: 68, color: "#0D9488" },
-      { label: "Instagram", pct: 22, color: "#EC4899" },
-      { label: "WhatsApp", pct: 10, color: "#F59E0B" },
+      { label: "WhatsApp", pct: 55, color: "#10B981" },
+      { label: "TikTok", pct: 30, color: "#0D9488" },
+      { label: "Instagram", pct: 15, color: "#EC4899" },
     ],
     reviews: [
       { name: "Tunde", stars: 5, text: "She delivered exactly what I ordered. Packaging was clean and she kept me updated the whole time." },
       { name: "Amaka", stars: 5, text: "First time buying from someone I didn't know online. The NOVA badge made me feel safe enough to try. No regrets." },
       { name: "Dayo", stars: 4, text: "Had a small issue with sizing, raised a dispute and it was resolved in 24 hours. Impressed." },
     ],
+    catalogue: [
+      { id: "c1", title: "Custom Ankara Dress", price: "25000", image: "https://placehold.co/400x400/0D9488/fff?text=Ankara+Dress" },
+      { id: "c2", title: "Silk Two-Piece", price: "32000", image: "https://placehold.co/400x400/14B8A6/fff?text=Silk+Two-Piece" },
+      { id: "c3", title: "Maxi Summer Gown", price: "18500", image: "https://placehold.co/400x400/0F1628/fff?text=Maxi+Gown" },
+      { id: "c4", title: "Office Chiffon Top", price: "12000", image: "https://placehold.co/400x400/F43F5E/fff?text=Chiffon+Top" }
+    ]
   },
   average: {
     name: "Emeka Gadgets",
@@ -945,13 +1087,18 @@ const vendors: Record<string, Vendor> = {
       { label: "Location Confirmed", desc: "Abuja, Nigeria" },
     ],
     sales: [
-      { label: "Instagram", pct: 85, color: "#EC4899" },
-      { label: "Twitter", pct: 15, color: "#0F1628" },
+      { label: "WhatsApp", pct: 60, color: "#10B981" },
+      { label: "TikTok", pct: 25, color: "#0D9488" },
+      { label: "Instagram", pct: 15, color: "#EC4899" },
     ],
     reviews: [
       { name: "Sarah", stars: 3, text: "Got the phone but it took 4 days longer than expected to arrive." },
       { name: "KC", stars: 4, text: "Good product, but the vendor takes hours to reply to DMs." },
     ],
+    catalogue: [
+      { id: "e1", title: "Used iPhone 12 Pro", price: "350000", image: "https://placehold.co/400x400/CBD5E1/475569?text=iPhone+12" },
+      { id: "e2", title: "AirPods Pro Gen 2", price: "120000", image: "https://placehold.co/400x400/F1F5F9/475569?text=AirPods" }
+    ]
   },
   bad: {
     name: "Quick Kicks",
@@ -970,12 +1117,77 @@ const vendors: Record<string, Vendor> = {
       { label: "Phone Number Verified", desc: "Basic phone verification only" },
     ],
     sales: [
-      { label: "Twitter", pct: 100, color: "#0F1628" },
+      { label: "WhatsApp", pct: 70, color: "#10B981" },
+      { label: "TikTok", pct: 30, color: "#0D9488" },
     ],
     reviews: [
       { name: "Bola", stars: 1, text: "Never received my order. Had to go through NOVA support to get my refund." },
       { name: "Dimi", stars: 2, text: "Sent the wrong size and refused to cover the return shipping cost." },
     ],
+    catalogue: [
+      { id: "b1", title: "Nike Air Force 1", price: "45000", image: "https://placehold.co/400x400/94A3B8/fff?text=Air+Force+1" }
+    ]
+  },
+  new1: {
+    name: "Lola Beauty",
+    handle: "@LolaLashes",
+    location: "Lagos, Nigeria",
+    initials: "LB",
+    category: "Beauty",
+    platform: "Instagram",
+    stats: { transactions: 150, rating: 4.9, fulfilment: 99 },
+    attributes: [
+      { label: "Order Fulfilment", pct: 99 },
+      { label: "Response Time", pct: 95 },
+      { label: "On-Time Delivery", pct: 96 },
+    ],
+    verification: [
+      { label: "Identity Verified", desc: "Government ID confirmed" },
+      { label: "Business Registration", desc: "CAC Document Verified" },
+      { label: "Location Confirmed", desc: "Lagos, Nigeria" },
+    ],
+    sales: [
+      { label: "WhatsApp", pct: 45, color: "#10B981" },
+      { label: "TikTok", pct: 35, color: "#0D9488" },
+      { label: "Instagram", pct: 20, color: "#EC4899" },
+    ],
+    reviews: [
+      { name: "Favour", stars: 5, text: "The very best lashes. Delivery was faster than expected." },
+    ],
+    catalogue: [
+       { id: "n1", title: "Mink Lashes Set", price: "5500", image: "https://placehold.co/400x400/FCD34D/854D0E?text=Mink+Lashes" },
+       { id: "n2", title: "Glossy Lip Kit", price: "8000", image: "https://placehold.co/400x400/FDA4AF/9F1239?text=Lip+Kit" },
+       { id: "n3", title: "Makeup Brush Set", price: "15000", image: "https://placehold.co/400x400/93C5FD/1E3A8A?text=Brush+Set" }
+    ]
+  },
+  new2: {
+    name: "Tech Bro Store",
+    handle: "@TechBroX",
+    location: "Abuja, Nigeria",
+    initials: "TB",
+    category: "Gadgets",
+    platform: "Twitter",
+    stats: { transactions: 42, rating: 4.5, fulfilment: 88 },
+    attributes: [
+      { label: "Order Fulfilment", pct: 88 },
+      { label: "Response Time", pct: 90 },
+      { label: "On-Time Delivery", pct: 85 },
+    ],
+    verification: [
+      { label: "Identity Verified", desc: "Government ID confirmed" },
+    ],
+    sales: [
+      { label: "WhatsApp", pct: 50, color: "#10B981" },
+      { label: "TikTok", pct: 35, color: "#0D9488" },
+      { label: "Instagram", pct: 15, color: "#EC4899" },
+    ],
+    reviews: [
+      { name: "Bayo", stars: 4, text: "Laptop was in good condition but charger stopped working after a week." },
+    ],
+    catalogue: [
+       { id: "n4", title: "MacBook Pro M1 (Used)", price: "850000", image: "https://placehold.co/400x400/334155/fff?text=MacBook+M1" },
+       { id: "n5", title: "Samsung 27' Monitor", price: "120000", image: "https://placehold.co/400x400/475569/fff?text=Monitor" }
+    ]
   }
 };
 
@@ -989,14 +1201,64 @@ function Stars({ count, total = 5 }: { count: number; total?: number }) {
   );
 }
 
-// ─── SCREEN 1: VENDOR PROFILE ─────────────────────────────────────────────────
-function ProfileScreen({ onContact, onCreateTx, vendor }: { onContact: () => void; onCreateTx: () => void; vendor: Vendor }) {
-  const [timeTab, setTimeTab] = useState(0);
-  const tabs = ["Last 30 days", "3 months", "All time"];
+// ─── SCREEN 0: DIRECTORY ──────────────────────────────────────────────────────
+function DirectoryScreen({ onSelect }: { onSelect: (id: string) => void }) {
+  const [query, setQuery] = useState("");
+
+  const filtered = Object.entries(vendors).filter(([id, v]) => {
+    const q = query.toLowerCase();
+    return v.name.toLowerCase().includes(q) || v.category.toLowerCase().includes(q) || v.location.toLowerCase().includes(q);
+  });
 
   return (
     <div className="screen">
-      {/* Identity */}
+      <div className="page-title">Trusted Directory</div>
+      <p className="page-sub">Find verified vendors for your next purchase.</p>
+
+      <div className="search-container">
+        <span style={{ fontSize: 18 }}>🔍</span>
+        <input 
+          className="search-input" 
+          placeholder="Search by name, category..." 
+          value={query} 
+          onChange={e => setQuery(e.target.value)} 
+        />
+      </div>
+
+      <div className="vendor-list">
+        {filtered.map(([id, v]) => (
+          <div key={id} className="vendor-list-card" onClick={() => onSelect(id)}>
+            <div className="vendor-avatar" style={{ width: 48, height: 48, fontSize: 18, borderWidth: 2 }}>{v.initials}</div>
+            <div className="vendor-list-info">
+              <div className="vendor-list-name">{v.name} {v.stats.rating >= 4.5 && <span style={{color: theme.teal, fontSize: 12}}>✓</span>}</div>
+              <div className="vendor-list-handle">{v.handle} • {v.category}</div>
+              <div className="vendor-list-meta">
+                <span>⭐ {v.stats.rating}</span>
+                <span>📦 {v.stats.transactions} sales</span>
+              </div>
+            </div>
+            <div style={{ color: theme.slate, fontSize: 18 }}>→</div>
+          </div>
+        ))}
+        {filtered.length === 0 && (
+          <div style={{ textAlign: "center", padding: "40px 20px", color: theme.slate, fontSize: 13 }}>
+            No vendors found matching "{query}"
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+// ─── SCREEN 1: VENDOR PROFILE ─────────────────────────────────────────────────
+function ProfileScreen({ onContact, onCreateTx, vendor }: { onContact: () => void; onCreateTx: () => void; vendor: Vendor }) {
+  const [timeTab, setTimeTab] = useState(0);
+  const [activeTab, setActiveTab] = useState<"identity" | "catalogue" | "reviews">("identity");
+  const timeTabs = ["Last 30 days", "3 months", "All time"];
+
+  return (
+    <div className="screen">
+      {/* Vendor Header Card */}
       <div className="card">
         <div className="vendor-identity">
           <div className="vendor-avatar">{vendor.initials}</div>
@@ -1015,98 +1277,141 @@ function ProfileScreen({ onContact, onCreateTx, vendor }: { onContact: () => voi
         </div>
       </div>
 
-      {/* Trust Strip */}
-      <div className="card">
-        <div className="time-toggle">
-          {tabs.map((t, i) => (
-            <button key={i} className={`time-btn ${timeTab === i ? "active" : ""}`} onClick={() => setTimeTab(i)}>{t}</button>
-          ))}
-        </div>
-        <div className="trust-strip">
-          <div className="trust-metric">
-            <div className="trust-number" style={{ color: theme.navy }}>{vendor.stats.transactions}</div>
-            <div className="trust-label">Transactions</div>
-          </div>
-          <div className="trust-metric">
-            <div className="trust-number" style={{ color: theme.amber }}>{vendor.stats.rating}★</div>
-            <div className="trust-label">Avg. Rating</div>
-          </div>
-          <div className="trust-metric">
-            <div className="trust-number" style={{ color: theme.teal }}>{vendor.stats.fulfilment}%</div>
-            <div className="trust-label">Fulfilment Rate</div>
-          </div>
-        </div>
+      <div className="profile-tabs">
+        <div className={`profile-tab ${activeTab === "identity" ? "active" : ""}`} onClick={() => setActiveTab("identity")}>Trust Stack</div>
+        <div className={`profile-tab ${activeTab === "catalogue" ? "active" : ""}`} onClick={() => setActiveTab("catalogue")}>Catalogue</div>
+        <div className={`profile-tab ${activeTab === "reviews" ? "active" : ""}`} onClick={() => setActiveTab("reviews")}>Reviews</div>
       </div>
 
-      {/* Attribute Breakdown */}
-      <div className="card">
-        {vendor.attributes.map((a: VendorAttribute, i: number) => (
-          <div key={i} className="attr-row">
-            <span className="attr-label">{a.label}</span>
-            <div className="attr-bar-bg">
-              <div className="attr-bar-fill" style={{ width: `${a.pct}%` }} />
+      {activeTab === "identity" && (
+        <div className="success-animation">
+          {/* Trust Strip */}
+          <div className="card">
+            <div className="time-toggle">
+              {timeTabs.map((t, i) => (
+                <button key={i} className={`time-btn ${timeTab === i ? "active" : ""}`} onClick={() => setTimeTab(i)}>{t}</button>
+              ))}
             </div>
-            <span className="attr-pct">{a.pct}%</span>
-          </div>
-        ))}
-      </div>
-
-      {/* Verification */}
-      <div className="card verify-card">
-        <div className="section-title">Verification Status</div>
-        {vendor.verification.map((v: VendorVerification, i: number) => (
-          <div key={i} className="verify-item">
-            <div className="verify-check">
-              <span style={{ color: theme.teal, fontSize: 11, fontWeight: 700 }}>✓</span>
-            </div>
-            <div className="verify-text">
-              <strong>{v.label}</strong>
-              <span>{v.desc}</span>
+            <div className="trust-strip">
+              <div className="trust-metric">
+                <div className="trust-number" style={{ color: theme.navy }}>{vendor.stats.transactions}</div>
+                <div className="trust-label">Transactions</div>
+              </div>
+              <div className="trust-metric">
+                <div className="trust-number" style={{ color: theme.amber }}>{vendor.stats.rating}★</div>
+                <div className="trust-label">Avg. Rating</div>
+              </div>
+              <div className="trust-metric">
+                <div className="trust-number" style={{ color: theme.teal }}>{vendor.stats.fulfilment}%</div>
+                <div className="trust-label">Fulfilment Rate</div>
+              </div>
             </div>
           </div>
-        ))}
-      </div>
 
-      {/* Sales Activity */}
-      <div className="card">
-        <div className="section-title">Sales Activity</div>
-        <div className="sales-bar">
-          {vendor.sales.map((s: VendorSales, i: number) => (
-            <div key={i} className="sales-seg" style={{ width: `${s.pct}%`, background: s.color }}>
-              {s.pct >= 15 ? `${s.label} ${s.pct}%` : ""}
+          {/* Attribute Breakdown */}
+          <div className="card">
+            {vendor.attributes.map((a: VendorAttribute, i: number) => (
+              <div key={i} className="attr-row">
+                <span className="attr-label">{a.label}</span>
+                <div className="attr-bar-bg">
+                  <div className="attr-bar-fill" style={{ width: `${a.pct}%` }} />
+                </div>
+                <span className="attr-pct">{a.pct}%</span>
+              </div>
+            ))}
+          </div>
+
+          {/* Verification */}
+          <div className="card verify-card">
+            <div className="section-title">Verification Status</div>
+            {vendor.verification.map((v: VendorVerification, i: number) => (
+              <div key={i} className="verify-item">
+                <div className="verify-check">
+                  <span style={{ color: theme.teal, fontSize: 11, fontWeight: 700 }}>✓</span>
+                </div>
+                <div className="verify-text">
+                  <strong>{v.label}</strong>
+                  <span>{v.desc}</span>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* Sales Activity */}
+          <div className="card">
+            <div className="section-title">Sales Activity</div>
+            <div className="sales-bar">
+              {vendor.sales.map((s: VendorSales, i: number) => (
+                <div key={i} className="sales-seg" style={{ width: `${s.pct}%`, background: s.color }}>
+                  {s.pct >= 15 ? `${s.label} ${s.pct}%` : ""}
+                </div>
+              ))}
             </div>
-          ))}
+            <div className="sales-legend">
+              {vendor.sales.map((s: VendorSales, i: number) => (
+                <div key={i} className="legend-item">
+                  <div className="legend-dot" style={{ background: s.color }} />
+                  {s.label} — {s.pct}%
+                </div>
+              ))}
+            </div>
+          </div>
         </div>
-        <div className="sales-legend">
-          {vendor.sales.map((s: VendorSales, i: number) => (
-            <div key={i} className="legend-item">
-              <div className="legend-dot" style={{ background: s.color }} />
-              {s.label} — {s.pct}%
-            </div>
-          ))}
-        </div>
-      </div>
+      )}
 
-      {/* Reviews */}
-      <div className="card">
-        <div className="section-title">Buyer Reviews</div>
-        {vendor.reviews.map((r: VendorReview, i: number) => (
-          <div key={i} className="review-card">
-            <div className="review-header">
-              <span className="reviewer-name">{r.name}</span>
-              <Stars count={r.stars} />
-            </div>
-            <p className="review-text">&quot;{r.text}&quot;</p>
+      {activeTab === "catalogue" && (
+        <div className="success-animation">
+          <div className="catalogue-grid">
+            {vendor.catalogue && vendor.catalogue.length > 0 ? (
+              vendor.catalogue.map(item => (
+                <div key={item.id} className="catalogue-item">
+                  <div className="catalogue-img" style={{ backgroundImage: `url(${item.image})` }} />
+                  <div className="catalogue-info">
+                    <div className="catalogue-title">{item.title}</div>
+                    <div className="catalogue-price">₦{parseInt(item.price).toLocaleString()}</div>
+                  </div>
+                </div>
+              ))
+            ) : (
+              <div style={{ gridColumn: "span 2", textAlign: "center", padding: "40px 20px", color: theme.slate, fontSize: 13 }}>
+                No items in catalogue yet.
+              </div>
+            )}
           </div>
-        ))}
-      </div>
+        </div>
+      )}
+
+      {activeTab === "reviews" && (
+        <div className="success-animation">
+          <div className="card">
+            <div className="section-title">Buyer Reviews</div>
+            {vendor.reviews && vendor.reviews.length > 0 ? (
+              vendor.reviews.map((r: VendorReview, i: number) => (
+                <div key={i} className="review-card">
+                  <div className="review-header">
+                    <span className="reviewer-name">{r.name}</span>
+                    <Stars count={r.stars} />
+                  </div>
+                  <p className="review-text">&quot;{r.text}&quot;</p>
+                </div>
+              ))
+            ) : (
+              <div style={{ textAlign: "center", padding: "20px", color: theme.slate, fontSize: 13 }}>
+                No reviews yet.
+              </div>
+            )}
+          </div>
+        </div>
+      )}
 
       {/* CTAs */}
-      <button className="cta-btn" onClick={onContact}>Contact Vendor on WhatsApp</button>
-      <p className="cta-sub">🔒 Transactions on NOVA are protected</p>
-      <button className="cta-btn secondary" style={{ marginTop: 10 }} onClick={onCreateTx}>
-        + Create NOVA Transaction
-      </button>
+      <div style={{ marginTop: 24 }}>
+        <button className="cta-btn" onClick={onContact}>Contact Vendor on WhatsApp</button>
+        <p className="cta-sub">🔒 Transactions on NOVA are protected</p>
+        <button className="cta-btn secondary" style={{ marginTop: 10 }} onClick={onCreateTx}>
+          + Create NOVA Transaction
+        </button>
+      </div>
     </div>
   );
 }
@@ -1480,16 +1785,16 @@ function ReviewScreen({ vendor, onDone }: { vendor: Vendor; onDone: () => void }
 
 // ─── APP SHELL ────────────────────────────────────────────────────────────────
 function AppContent() {
-  const searchParams = useSearchParams();
-  const vendorId = searchParams.get("v") || "good";
-  const vendor = vendors[vendorId] || vendors.good;
+  const [selectedVendorId, setSelectedVendorId] = useState<string>("good");
+  const vendor = vendors[selectedVendorId] || vendors.good;
 
-  const [screen, setScreen] = useState<string>("profile");
+  const [screen, setScreen] = useState<string>("directory");
   const [txData, setTxData] = useState<TxData | null>(null);
   const [paymentModel, setPaymentModel] = useState<string>("");
 
   const screenTitles: Record<string, { title: string; sub: string; back: string | null }> = {
-    profile: { title: "NOVA", sub: "Verified Commerce", back: null },
+    directory: { title: "NOVA", sub: "Verified Commerce", back: null },
+    profile: { title: "NOVA", sub: "Verified Commerce", back: "directory" },
     create: { title: "NOVA", sub: "Verified Commerce", back: "profile" },
     confirm: { title: "NOVA", sub: "Verified Commerce", back: "profile" },
     confirmation: { title: "NOVA", sub: "Verified Commerce", back: null },
@@ -1516,6 +1821,12 @@ function AppContent() {
         </div>
 
         {/* Screens */}
+        {screen === "directory" && (
+          <DirectoryScreen onSelect={(id) => {
+            setSelectedVendorId(id);
+            setScreen("profile");
+          }} />
+        )}
         {screen === "profile" && (
           <ProfileScreen
             vendor={vendor}
