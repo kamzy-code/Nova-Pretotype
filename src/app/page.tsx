@@ -1214,7 +1214,7 @@ function Stars({ count, total = 5 }: { count: number; total?: number }) {
 function DirectoryScreen({ onSelect }: { onSelect: (id: string) => void }) {
   const [query, setQuery] = useState("");
 
-  const filtered = Object.entries(vendors).filter(([id, v]) => {
+  const filtered = Object.entries(vendors).filter(([_, v]) => {
     const q = query.toLowerCase();
     return v.name.toLowerCase().includes(q) || v.category.toLowerCase().includes(q) || v.location.toLowerCase().includes(q);
   });
@@ -1251,7 +1251,7 @@ function DirectoryScreen({ onSelect }: { onSelect: (id: string) => void }) {
         ))}
         {filtered.length === 0 && (
           <div style={{ textAlign: "center", padding: "40px 20px", color: theme.slate, fontSize: 13 }}>
-            No vendors found matching "{query}"
+            No vendors found matching &quot;{query}&quot;
           </div>
         )}
       </div>
