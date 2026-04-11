@@ -1,6 +1,5 @@
 'use client'
 import { useState, Suspense } from "react";
-import { useSearchParams } from "next/navigation";
 
 // ─── INTERFACES ───────────────────────────────────────────────────────────────
 export interface VendorStats {
