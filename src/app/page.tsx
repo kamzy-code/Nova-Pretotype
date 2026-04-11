@@ -29,6 +29,7 @@ export interface VendorReview {
   name: string;
   stars: number;
   text: string;
+  image?: string;
 }
 
 export interface CatalogueItem {
@@ -451,6 +452,15 @@ const styles = `
     color: #64748B;
     line-height: 1.5;
     font-style: italic;
+  }
+
+  .review-img {
+    width: 60px;
+    height: 60px;
+    border-radius: 8px;
+    object-fit: cover;
+    margin-top: 10px;
+    border: 1px solid #E2E8F0;
   }
 
   .cta-btn {
@@ -1058,15 +1068,15 @@ const vendors: Record<string, Vendor> = {
       { label: "Instagram", pct: 15, color: "#EC4899" },
     ],
     reviews: [
-      { name: "Tunde", stars: 5, text: "She delivered exactly what I ordered. Packaging was clean and she kept me updated the whole time." },
+      { name: "Tunde", stars: 5, text: "She delivered exactly what I ordered. Packaging was clean and she kept me updated the whole time.", image: "https://picsum.photos/seed/rev1/200/200" },
       { name: "Amaka", stars: 5, text: "First time buying from someone I didn't know online. The NOVA badge made me feel safe enough to try. No regrets." },
       { name: "Dayo", stars: 4, text: "Had a small issue with sizing, raised a dispute and it was resolved in 24 hours. Impressed." },
     ],
     catalogue: [
-      { id: "c1", title: "Custom Ankara Dress", price: "25000", image: "https://placehold.co/400x400/0D9488/fff?text=Ankara+Dress" },
-      { id: "c2", title: "Silk Two-Piece", price: "32000", image: "https://placehold.co/400x400/14B8A6/fff?text=Silk+Two-Piece" },
-      { id: "c3", title: "Maxi Summer Gown", price: "18500", image: "https://placehold.co/400x400/0F1628/fff?text=Maxi+Gown" },
-      { id: "c4", title: "Office Chiffon Top", price: "12000", image: "https://placehold.co/400x400/F43F5E/fff?text=Chiffon+Top" }
+      { id: "c1", title: "Custom Ankara Dress", price: "25000", image: "https://picsum.photos/seed/ankara/400/400" },
+      { id: "c2", title: "Silk Two-Piece", price: "32000", image: "https://picsum.photos/seed/silk/400/400" },
+      { id: "c3", title: "Maxi Summer Gown", price: "18500", image: "https://picsum.photos/seed/maxi/400/400" },
+      { id: "c4", title: "Office Chiffon Top", price: "12000", image: "https://picsum.photos/seed/chiffon/400/400" }
     ]
   },
   average: {
@@ -1096,8 +1106,8 @@ const vendors: Record<string, Vendor> = {
       { name: "KC", stars: 4, text: "Good product, but the vendor takes hours to reply to DMs." },
     ],
     catalogue: [
-      { id: "e1", title: "Used iPhone 12 Pro", price: "350000", image: "https://placehold.co/400x400/CBD5E1/475569?text=iPhone+12" },
-      { id: "e2", title: "AirPods Pro Gen 2", price: "120000", image: "https://placehold.co/400x400/F1F5F9/475569?text=AirPods" }
+      { id: "e1", title: "Used iPhone 12 Pro", price: "350000", image: "https://picsum.photos/seed/iphone12/400/400" },
+      { id: "e2", title: "AirPods Pro Gen 2", price: "120000", image: "https://picsum.photos/seed/airpods/400/400" }
     ]
   },
   bad: {
@@ -1122,10 +1132,10 @@ const vendors: Record<string, Vendor> = {
     ],
     reviews: [
       { name: "Bola", stars: 1, text: "Never received my order. Had to go through NOVA support to get my refund." },
-      { name: "Dimi", stars: 2, text: "Sent the wrong size and refused to cover the return shipping cost." },
+      { name: "Dimi", stars: 2, text: "Sent the wrong size and refused to cover the return shipping cost.", image: "https://picsum.photos/seed/wrongsize/200/200" },
     ],
     catalogue: [
-      { id: "b1", title: "Nike Air Force 1", price: "45000", image: "https://placehold.co/400x400/94A3B8/fff?text=Air+Force+1" }
+      { id: "b1", title: "Nike Air Force 1", price: "45000", image: "https://picsum.photos/seed/nikeaf1/400/400" }
     ]
   },
   new1: {
@@ -1155,9 +1165,9 @@ const vendors: Record<string, Vendor> = {
       { name: "Favour", stars: 5, text: "The very best lashes. Delivery was faster than expected." },
     ],
     catalogue: [
-       { id: "n1", title: "Mink Lashes Set", price: "5500", image: "https://placehold.co/400x400/FCD34D/854D0E?text=Mink+Lashes" },
-       { id: "n2", title: "Glossy Lip Kit", price: "8000", image: "https://placehold.co/400x400/FDA4AF/9F1239?text=Lip+Kit" },
-       { id: "n3", title: "Makeup Brush Set", price: "15000", image: "https://placehold.co/400x400/93C5FD/1E3A8A?text=Brush+Set" }
+       { id: "n1", title: "Mink Lashes Set", price: "5500", image: "https://picsum.photos/seed/lashes/400/400" },
+       { id: "n2", title: "Glossy Lip Kit", price: "8000", image: "https://picsum.photos/seed/lipkit/400/400" },
+       { id: "n3", title: "Makeup Brush Set", price: "15000", image: "https://picsum.photos/seed/brushes/400/400" }
     ]
   },
   new2: {
@@ -1185,8 +1195,8 @@ const vendors: Record<string, Vendor> = {
       { name: "Bayo", stars: 4, text: "Laptop was in good condition but charger stopped working after a week." },
     ],
     catalogue: [
-       { id: "n4", title: "MacBook Pro M1 (Used)", price: "850000", image: "https://placehold.co/400x400/334155/fff?text=MacBook+M1" },
-       { id: "n5", title: "Samsung 27' Monitor", price: "120000", image: "https://placehold.co/400x400/475569/fff?text=Monitor" }
+       { id: "n4", title: "MacBook Pro M1 (Used)", price: "850000", image: "https://picsum.photos/seed/macbook/400/400" },
+       { id: "n5", title: "Samsung 27' Monitor", price: "120000", image: "https://picsum.photos/seed/monitor/400/400" }
     ]
   }
 };
@@ -1393,6 +1403,7 @@ function ProfileScreen({ onContact, onCreateTx, vendor }: { onContact: () => voi
                     <Stars count={r.stars} />
                   </div>
                   <p className="review-text">&quot;{r.text}&quot;</p>
+                  {r.image && <img src={r.image} className="review-img" alt="Review attachment" />}
                 </div>
               ))
             ) : (
@@ -1774,6 +1785,9 @@ function ReviewScreen({ vendor, onDone }: { vendor: Vendor; onDone: () => void }
       <div className="card">
         <label className="form-label">Write a Review (optional)</label>
         <textarea className="form-input" placeholder="Tell the next buyer what your experience was like..." value={comment} onChange={e => setComment(e.target.value)} style={{ minHeight: 100 }} />
+        <button style={{ padding: "10px", borderRadius: 8, border: "2px dashed #E2E8F0", background: "white", fontSize: 13, color: theme.slate, display: "flex", gap: 8, alignItems: "center", cursor: "pointer", marginTop: 4, width: "100%", justifyContent: "center", fontWeight: 600, fontFamily: "sans-serif" }} onClick={() => alert("Image attachment flow")}>
+          <span style={{ fontSize: 16 }}>📷</span> Attach Image
+        </button>
       </div>
 
       <button className="cta-btn" disabled={overall === 0} style={{ opacity: overall > 0 ? 1 : 0.4 }} onClick={() => setSubmitted(true)}>
