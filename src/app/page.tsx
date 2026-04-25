@@ -14,6 +14,7 @@ export interface VendorAttribute {
 }
 
 export interface VendorVerification {
+  type: "govId" | "cac" | "smedan" | "phone" | "email";
   label: string;
   desc: string;
 }
@@ -29,28 +30,46 @@ export interface VendorReview {
   stars: number;
   text: string;
   image?: string;
+  sentiment?: "good" | "neutral" | "bad";
 }
 
 export interface CatalogueItem {
   id: string;
+  type?: "image" | "video";
   title: string;
+  description?: string;
   price: string;
   image: string;
+  inStock?: boolean;
+}
+
+export interface VendorOperations {
+  deliveryScope: string;
+  paymentModels: string[];
+  refundPolicy: string;
+  businessDesc: string;
+  socials: Record<string, string>;
 }
 
 export interface Vendor {
   name: string;
   handle: string;
   location: string;
+  locationAddress?: string;
+  locationCity?: string;
   initials: string;
   category: string;
   platform: string;
+  coverVideo?: string;
+  deliveryCapabilities?: string[];
   stats: VendorStats;
+  reviewsCount?: { good: number; neutral: number; bad: number };
   attributes: VendorAttribute[];
   verification: VendorVerification[];
   sales: VendorSales[];
   reviews: VendorReview[];
   catalogue: CatalogueItem[];
+  operations?: VendorOperations;
 }
 
 export interface TxData {
@@ -1035,6 +1054,273 @@ const styles = `
     line-height: 1.4;
   }
 
+  /* v3 Styles */
+  .cover-video-container {
+    width: 100%;
+    height: 120px;
+    border-radius: 16px 16px 0 0;
+    overflow: hidden;
+    position: relative;
+    background: #1E2D4A;
+  }
+  .cover-video {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    opacity: 0.8;
+  }
+  .vendor-profile-header {
+    background: white;
+    border-radius: 16px;
+    margin-bottom: 12px;
+    box-shadow: 0 2px 12px rgba(15,22,40,0.06);
+    position: relative;
+  }
+  .vendor-avatar-overlap {
+    width: 76px;
+    height: 76px;
+    border-radius: 50%;
+    border: 4px solid white;
+    background: linear-gradient(135deg, ${theme.teal}, ${theme.navy});
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 26px;
+    font-weight: 700;
+    font-family: sans-serif;
+    position: absolute;
+    top: 80px;
+    left: 20px;
+    z-index: 10;
+  }
+  .vendor-info-section {
+    padding: 50px 20px 20px 20px;
+  }
+  .badge-icon {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 4px 8px;
+    border-radius: 6px;
+    font-size: 10px;
+    font-weight: 700;
+    font-family: sans-serif;
+    margin-right: 6px;
+    margin-bottom: 6px;
+  }
+  .badge-gov { background: rgba(15, 22, 40, 0.08); color: ${theme.navy}; }
+  .badge-cac { background: rgba(13, 148, 136, 0.12); color: #0D9488; }
+  .badge-smedan { background: rgba(245, 158, 11, 0.15); color: #D97706; }
+  
+  .circular-progress-wrap {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+  }
+  .circle-svg {
+    width: 56px;
+    height: 56px;
+    transform: rotate(-90deg);
+  }
+  .circle-bg {
+    fill: none;
+    stroke: #F1F5F9;
+    stroke-width: 6;
+  }
+  .circle-fill {
+    fill: none;
+    stroke: ${theme.teal};
+    stroke-width: 6;
+    stroke-linecap: round;
+    transition: stroke-dasharray 1s ease;
+  }
+  .circle-text {
+    position: absolute;
+    font-size: 13px;
+    font-weight: 800;
+    color: ${theme.navy};
+    margin-top: 19px;
+  }
+  .circle-label {
+    font-size: 10px;
+    font-weight: 600;
+    color: ${theme.slate};
+    text-align: center;
+    max-width: 65px;
+    line-height: 1.2;
+  }
+
+  .map-placeholder {
+    width: 100%;
+    height: 140px;
+    background: url('https://picsum.photos/seed/map/400/200') center/cover;
+    border-radius: 12px;
+    margin-top: 12px;
+    position: relative;
+    border: 1px solid #E2E8F0;
+  }
+  .map-pin {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 24px;
+    filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2));
+  }
+  .map-nav-btn {
+    position: absolute;
+    bottom: 10px;
+    right: 10px;
+    background: white;
+    padding: 6px 12px;
+    border-radius: 16px;
+    font-size: 11px;
+    font-weight: 700;
+    color: ${theme.navy};
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  }
+  
+  .expander-card {
+    border: 1px solid #E2E8F0;
+    border-radius: 12px;
+    margin-bottom: 10px;
+    overflow: hidden;
+  }
+  .expander-header {
+    padding: 14px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: white;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 600;
+    color: ${theme.navy};
+  }
+  .expander-body {
+    padding: 0 14px 14px;
+    background: #FAFAFA;
+    border-top: 1px solid #E2E8F0;
+    font-size: 12px;
+    color: ${theme.slate};
+    line-height: 1.5;
+  }
+  .social-grid {
+    display: flex;
+    gap: 8px;
+    margin-top: 12px;
+  }
+  .social-btn {
+    flex: 1;
+    padding: 10px;
+    border-radius: 8px;
+    background: white;
+    border: 1px solid #E2E8F0;
+    text-align: center;
+    font-size: 12px;
+    font-weight: 600;
+    color: ${theme.navy};
+  }
+  
+  .media-feed {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+  }
+  .media-card {
+    position: relative;
+    border-radius: 8px;
+    overflow: hidden;
+    aspect-ratio: 4/5;
+    background: #F1F5F9;
+  }
+  .media-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  .media-overlay {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    padding: 24px 8px 8px;
+    background: linear-gradient(0deg, rgba(15,22,40,0.8) 0%, transparent 100%);
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+  }
+  .media-price {
+    color: white;
+    font-size: 14px;
+    font-weight: 800;
+    font-family: sans-serif;
+  }
+  .media-title {
+    color: rgba(255,255,255,0.9);
+    font-size: 11px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .stock-indicator {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 9px;
+    font-weight: 800;
+    text-transform: uppercase;
+    backdrop-filter: blur(4px);
+  }
+  .stock-in { background: rgba(16,185,129,0.9); color: white; }
+  .stock-out { background: rgba(244,63,94,0.9); color: white; }
+
+  .review-segments {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 16px;
+  }
+  .segment-pill {
+    flex: 1;
+    text-align: center;
+    padding: 8px 0;
+    border-radius: 8px;
+    background: #F8FAFC;
+    border: 1px solid #E2E8F0;
+  }
+  .segment-val {
+    font-size: 16px;
+    font-weight: 800;
+    color: ${theme.navy};
+  }
+  .segment-label {
+    font-size: 10px;
+    color: ${theme.slate};
+    text-transform: uppercase;
+    margin-top: 2px;
+  }
+  
+  .share-btn {
+    width: 100%;
+    padding: 12px;
+    border: 2px solid #E2E8F0;
+    background: white;
+    border-radius: 12px;
+    color: ${theme.navy};
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    margin-bottom: 16px;
+  }
+
   .success-animation {
     animation: fadeUp 0.5s ease;
   }
@@ -1045,21 +1331,25 @@ const vendors: Record<string, Vendor> = {
   good: {
     name: "Chioma Adeleke",
     handle: "@ChiStyleHub",
-    location: "Lagos, Nigeria",
+    location: "Lagos",
+    locationAddress: "Plot 14 Admiralty Way, Lekki Phase 1",
+    locationCity: "Lagos, Nigeria",
     initials: "CA",
     category: "Fashion & Clothing",
     platform: "TikTok",
+    coverVideo: "https://videos.pexels.com/video-files/5784918/5784918-uhd_2160_4096_24fps.mp4",
+    deliveryCapabilities: ["Nationwide", "Intra-state"],
     stats: { transactions: 34, rating: 4.8, fulfilment: 97 },
+    reviewsCount: { good: 12, neutral: 1, bad: 0 },
     attributes: [
       { label: "Order Fulfilment", pct: 97 },
       { label: "Response Time", pct: 98 },
       { label: "On-Time Delivery", pct: 92 },
     ],
     verification: [
-      { label: "Identity Verified", desc: "Government ID confirmed" },
-      { label: "Business Activity Verified", desc: "TikTok page and transaction history reviewed" },
-      { label: "Social Presence Reviewed", desc: "Active TikTok seller verified" },
-      { label: "Location Confirmed", desc: "Lagos, Nigeria" },
+      { type: "govId", label: "Identity Verified", desc: "Government ID confirmed" },
+      { type: "cac", label: "Business Activity Verified", desc: "CAC registered, TikTok reviewed" },
+      { type: "phone", label: "Phone Confirmed", desc: "Active phone number" },
     ],
     sales: [
       { label: "WhatsApp", pct: 55, color: "#10B981" },
@@ -1067,33 +1357,43 @@ const vendors: Record<string, Vendor> = {
       { label: "Instagram", pct: 15, color: "#EC4899" },
     ],
     reviews: [
-      { name: "Tunde", stars: 5, text: "She delivered exactly what I ordered. Packaging was clean and she kept me updated the whole time.", image: "https://picsum.photos/seed/rev1/200/200" },
-      { name: "Amaka", stars: 5, text: "First time buying from someone I didn't know online. The NOVA badge made me feel safe enough to try. No regrets." },
-      { name: "Dayo", stars: 4, text: "Had a small issue with sizing, raised a dispute and it was resolved in 24 hours. Impressed." },
+      { name: "Tunde", stars: 5, text: "She delivered exactly what I ordered. Packaging was clean and she kept me updated the whole time.", image: "https://picsum.photos/seed/rev1/200/200", sentiment: "good" },
+      { name: "Amaka", stars: 5, text: "First time buying from someone I didn't know online. The NOVA badge made me feel safe enough to try. No regrets.", sentiment: "good" },
+      { name: "Dayo", stars: 4, text: "Had a small issue with sizing, raised a dispute and it was resolved in 24 hours. Impressed.", sentiment: "neutral" },
     ],
     catalogue: [
-      { id: "c1", title: "Custom Ankara Dress", price: "25000", image: "https://picsum.photos/seed/ankara/400/400" },
-      { id: "c2", title: "Silk Two-Piece", price: "32000", image: "https://picsum.photos/seed/silk/400/400" },
-      { id: "c3", title: "Maxi Summer Gown", price: "18500", image: "https://picsum.photos/seed/maxi/400/400" },
-      { id: "c4", title: "Office Chiffon Top", price: "12000", image: "https://picsum.photos/seed/chiffon/400/400" }
-    ]
+      { id: "c1", type: "image", title: "Custom Ankara Dress", description: "Beautiful custom-tailored dress natively styled.", price: "25000", image: "https://picsum.photos/seed/ankara/400/400", inStock: true },
+      { id: "c2", type: "image", title: "Silk Two-Piece", description: "Soft 100% silk lounging wear.", price: "32000", image: "https://picsum.photos/seed/silk/400/400", inStock: true },
+      { id: "c3", type: "image", title: "Maxi Summer Gown", description: "Perfect for the beach and outdoor events.", price: "18500", image: "https://picsum.photos/seed/maxi/400/400", inStock: false },
+    ],
+    operations: {
+      deliveryScope: "Nationwide Delivery, International (UK/US/CAN)",
+      paymentModels: ["Flex Advance (50/50)", "Full Escrow"],
+      refundPolicy: "Returns accepted within 48 hours for sizing issues (buyer covers return shipping). No refunds on custom tailored items unless defective.",
+      businessDesc: "ChiStyleHub specializes in premium and ready-to-wear tailored outfits for the modern African woman. Quality fabrics, exceptional stitching.",
+      socials: { whatsapp: "wa.me/+234123", instagram: "@ChiStyleHub", tiktok: "@ChiStyleHub" }
+    }
   },
   average: {
     name: "Emeka Gadgets",
     handle: "@EmvyTech",
-    location: "Abuja, Nigeria",
+    location: "Abuja",
+    locationAddress: "Shop B4, Wuse Zone 3 Plaza",
+    locationCity: "Abuja, Nigeria",
     initials: "EG",
     category: "Electronics",
     platform: "Instagram",
+    deliveryCapabilities: ["Intra-state"],
     stats: { transactions: 12, rating: 3.5, fulfilment: 74 },
+    reviewsCount: { good: 1, neutral: 2, bad: 1 },
     attributes: [
       { label: "Order Fulfilment", pct: 74 },
       { label: "Response Time", pct: 81 },
       { label: "On-Time Delivery", pct: 65 },
     ],
     verification: [
-      { label: "Identity Verified", desc: "Government ID confirmed" },
-      { label: "Location Confirmed", desc: "Abuja, Nigeria" },
+      { type: "govId", label: "Identity Verified", desc: "Government ID confirmed" },
+      { type: "smedan", label: "Registered SME", desc: "SMEDAN verification active" },
     ],
     sales: [
       { label: "WhatsApp", pct: 60, color: "#10B981" },
@@ -1101,59 +1401,81 @@ const vendors: Record<string, Vendor> = {
       { label: "Instagram", pct: 15, color: "#EC4899" },
     ],
     reviews: [
-      { name: "Sarah", stars: 3, text: "Got the phone but it took 4 days longer than expected to arrive." },
-      { name: "KC", stars: 4, text: "Good product, but the vendor takes hours to reply to DMs." },
+      { name: "Sarah", stars: 3, text: "Got the phone but it took 4 days longer than expected to arrive.", sentiment: "neutral" },
+      { name: "KC", stars: 4, text: "Good product, but the vendor takes hours to reply to DMs.", sentiment: "good" },
     ],
     catalogue: [
-      { id: "e1", title: "Used iPhone 12 Pro", price: "350000", image: "https://picsum.photos/seed/iphone12/400/400" },
-      { id: "e2", title: "AirPods Pro Gen 2", price: "120000", image: "https://picsum.photos/seed/airpods/400/400" }
-    ]
+      { id: "e1", type: "image", title: "Used iPhone 12 Pro", price: "350000", image: "https://picsum.photos/seed/iphone12/400/400", inStock: true },
+      { id: "e2", type: "image", title: "AirPods Pro Gen 2", price: "120000", image: "https://picsum.photos/seed/airpods/400/400", inStock: true }
+    ],
+    operations: {
+      deliveryScope: "Abuja only (Waybill upon request and prepay)",
+      paymentModels: ["Full Upfront", "Flex Advance"],
+      refundPolicy: "No refunds on fairly used gadgets. Test before paying balance.",
+      businessDesc: "We sell fairly used phones and laptops at cheap prices in Wuse 3.",
+      socials: { whatsapp: "wa.me/+234123" }
+    }
   },
   bad: {
     name: "Quick Kicks",
     handle: "@SneakerPlug01",
     location: "Port Harcourt",
+    locationAddress: "15 Rumuola Road",
+    locationCity: "Rivers, Nigeria",
     initials: "QK",
     category: "Sneakers",
     platform: "Twitter",
+    deliveryCapabilities: ["Nationwide"],
     stats: { transactions: 3, rating: 2.1, fulfilment: 42 },
+    reviewsCount: { good: 0, neutral: 0, bad: 3 },
     attributes: [
       { label: "Order Fulfilment", pct: 42 },
       { label: "Response Time", pct: 30 },
       { label: "On-Time Delivery", pct: 15 },
     ],
     verification: [
-      { label: "Phone Number Verified", desc: "Basic phone verification only" },
+      { type: "phone", label: "Phone Number Verified", desc: "Basic phone verification only" },
+      { type: "email", label: "Email Verified", desc: "Confirmation link clicked" },
     ],
     sales: [
       { label: "WhatsApp", pct: 70, color: "#10B981" },
       { label: "TikTok", pct: 30, color: "#0D9488" },
     ],
     reviews: [
-      { name: "Bola", stars: 1, text: "Never received my order. Had to go through NOVA support to get my refund." },
-      { name: "Dimi", stars: 2, text: "Sent the wrong size and refused to cover the return shipping cost.", image: "https://picsum.photos/seed/wrongsize/200/200" },
+      { name: "Bola", stars: 1, text: "Never received my order. Had to go through NOVA support to get my refund.", sentiment: "bad" },
+      { name: "Dimi", stars: 2, text: "Sent the wrong size and refused to cover the return shipping cost.", image: "https://picsum.photos/seed/wrongsize/200/200", sentiment: "bad" },
     ],
     catalogue: [
-      { id: "b1", title: "Nike Air Force 1", price: "45000", image: "https://picsum.photos/seed/nikeaf1/400/400" }
-    ]
+      { id: "b1", type: "image", title: "Nike Air Force 1", price: "45000", image: "https://picsum.photos/seed/nikeaf1/400/400", inStock: false }
+    ],
+    operations: {
+      deliveryScope: "Nationwide Waybill",
+      paymentModels: ["Full Upfront"],
+      refundPolicy: "No refunds.",
+      businessDesc: "Trendy wears.",
+      socials: { twitter: "@SneakerPlug01" }
+    }
   },
   new1: {
     name: "Lola Beauty",
     handle: "@LolaLashes",
-    location: "Lagos, Nigeria",
+    location: "Lagos",
+    locationAddress: "Suite 4, Ikeja City Mall",
+    locationCity: "Lagos, Nigeria",
     initials: "LB",
     category: "Beauty",
     platform: "Instagram",
+    deliveryCapabilities: ["Nationwide"],
     stats: { transactions: 150, rating: 4.9, fulfilment: 99 },
+    reviewsCount: { good: 48, neutral: 1, bad: 0 },
     attributes: [
       { label: "Order Fulfilment", pct: 99 },
       { label: "Response Time", pct: 95 },
       { label: "On-Time Delivery", pct: 96 },
     ],
     verification: [
-      { label: "Identity Verified", desc: "Government ID confirmed" },
-      { label: "Business Registration", desc: "CAC Document Verified" },
-      { label: "Location Confirmed", desc: "Lagos, Nigeria" },
+      { type: "govId", label: "Identity Verified", desc: "Government ID confirmed" },
+      { type: "cac", label: "Business Registration", desc: "CAC Document Verified" },
     ],
     sales: [
       { label: "WhatsApp", pct: 45, color: "#10B981" },
@@ -1161,29 +1483,41 @@ const vendors: Record<string, Vendor> = {
       { label: "Instagram", pct: 20, color: "#EC4899" },
     ],
     reviews: [
-      { name: "Favour", stars: 5, text: "The very best lashes. Delivery was faster than expected." },
+      { name: "Favour", stars: 5, text: "The very best lashes. Delivery was faster than expected.", sentiment: "good" },
     ],
     catalogue: [
-       { id: "n1", title: "Mink Lashes Set", price: "5500", image: "https://picsum.photos/seed/lashes/400/400" },
-       { id: "n2", title: "Glossy Lip Kit", price: "8000", image: "https://picsum.photos/seed/lipkit/400/400" },
-       { id: "n3", title: "Makeup Brush Set", price: "15000", image: "https://picsum.photos/seed/brushes/400/400" }
-    ]
+       { id: "n1", type: "image", title: "Mink Lashes Set", price: "5500", image: "https://picsum.photos/seed/lashes/400/400", inStock: true },
+       { id: "n2", type: "image", title: "Glossy Lip Kit", price: "8000", image: "https://picsum.photos/seed/lipkit/400/400", inStock: true },
+       { id: "n3", type: "image", title: "Makeup Brush Set", price: "15000", image: "https://picsum.photos/seed/brushes/400/400", inStock: true }
+    ],
+    operations: {
+      deliveryScope: "Nationwide",
+      paymentModels: ["Full Escrow", "Flex Advance"],
+      refundPolicy: "Returns within 3 days if sealed.",
+      businessDesc: "Top-tier beauty products.",
+      socials: { instagram: "@LolaLashes" }
+    }
   },
   new2: {
     name: "Tech Bro Store",
     handle: "@TechBroX",
-    location: "Abuja, Nigeria",
+    location: "Abuja",
+    locationAddress: "Phase 1 Gwarinpa",
+    locationCity: "Abuja, Nigeria",
     initials: "TB",
     category: "Gadgets",
     platform: "Twitter",
+    deliveryCapabilities: ["Nationwide"],
     stats: { transactions: 42, rating: 4.5, fulfilment: 88 },
+    reviewsCount: { good: 15, neutral: 2, bad: 1 },
     attributes: [
       { label: "Order Fulfilment", pct: 88 },
       { label: "Response Time", pct: 90 },
       { label: "On-Time Delivery", pct: 85 },
     ],
     verification: [
-      { label: "Identity Verified", desc: "Government ID confirmed" },
+      { type: "govId", label: "Identity Verified", desc: "Government ID confirmed" },
+      { type: "smedan", label: "SME Active", desc: "Registered SMEDAN business" },
     ],
     sales: [
       { label: "WhatsApp", pct: 50, color: "#10B981" },
@@ -1191,12 +1525,19 @@ const vendors: Record<string, Vendor> = {
       { label: "Instagram", pct: 15, color: "#EC4899" },
     ],
     reviews: [
-      { name: "Bayo", stars: 4, text: "Laptop was in good condition but charger stopped working after a week." },
+      { name: "Bayo", stars: 4, text: "Laptop was in good condition but charger stopped working after a week.", sentiment: "neutral" },
     ],
     catalogue: [
-       { id: "n4", title: "MacBook Pro M1 (Used)", price: "850000", image: "https://picsum.photos/seed/macbook/400/400" },
-       { id: "n5", title: "Samsung 27' Monitor", price: "120000", image: "https://picsum.photos/seed/monitor/400/400" }
-    ]
+       { id: "n4", type: "image", title: "MacBook Pro M1 (Used)", price: "850000", image: "https://picsum.photos/seed/macbook/400/400", inStock: true },
+       { id: "n5", type: "image", title: "Samsung 27' Monitor", price: "120000", image: "https://picsum.photos/seed/monitor/400/400", inStock: false }
+    ],
+    operations: {
+      deliveryScope: "Nationwide via GIG Logistics",
+      paymentModels: ["Flex Advance", "Full Escrow"],
+      refundPolicy: "Returns within 24 hours only if defective.",
+      businessDesc: "Specialists in Apple and Samsung products.",
+      socials: { twitter: "@TechBroX" }
+    }
   }
 };
 
@@ -1213,18 +1554,100 @@ function Stars({ count, total = 5 }: { count: number; total?: number }) {
 // ─── SCREEN 0: DIRECTORY ──────────────────────────────────────────────────────
 function DirectoryScreen({ onSelect }: { onSelect: (id: string) => void }) {
   const [query, setQuery] = useState("");
+  const [sortBy, setSortBy] = useState<"txn"|"fulfilment">("txn");
+  const [filterLoc, setFilterLoc] = useState("");
+  const [filterCap, setFilterCap] = useState("");
+
+  const [compareMode, setCompareMode] = useState(false);
+  const [compareSelections, setCompareSelections] = useState<string[]>([]);
 
   const filtered = Object.entries(vendors).filter(([, v]) => {
     const q = query.toLowerCase();
-    return v.name.toLowerCase().includes(q) || v.category.toLowerCase().includes(q) || v.location.toLowerCase().includes(q);
+    const matchesQ = v.name.toLowerCase().includes(q) || v.category.toLowerCase().includes(q);
+    const matchesLoc = filterLoc ? v.location.toLowerCase().includes(filterLoc.toLowerCase()) : true;
+    const matchesCap = filterCap ? (v.deliveryCapabilities || []).some(c => c.toLowerCase().includes(filterCap.toLowerCase())) : true;
+    return matchesQ && matchesLoc && matchesCap;
+  }).sort(([, a], [, b]) => {
+    if (sortBy === "txn") return b.stats.transactions - a.stats.transactions;
+    if (sortBy === "fulfilment") return b.stats.fulfilment - a.stats.fulfilment;
+    return 0;
   });
+
+  const toggleCompare = (id: string) => {
+    if (compareSelections.includes(id)) {
+      setCompareSelections(prev => prev.filter(x => x !== id));
+    } else {
+      if (compareSelections.length < 2) setCompareSelections(prev => [...prev, id]);
+    }
+  };
+
+  if (compareMode && compareSelections.length === 2) {
+    const v1 = vendors[compareSelections[0]];
+    const v2 = vendors[compareSelections[1]];
+    return (
+      <div className="screen success-animation">
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
+          <div className="page-title" style={{ marginBottom: 0 }}>Compare Vendors</div>
+          <button className="topbar-back" onClick={() => { setCompareMode(false); setCompareSelections([]); }}>Close</button>
+        </div>
+        
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+          {/* Vendor 1 */}
+          <div className="card" style={{ padding: 12, textAlign: "center" }}>
+            <div className="vendor-avatar" style={{ width: 56, height: 56, margin: "0 auto 8px" }}>{v1.initials}</div>
+            <div style={{ fontSize: 14, fontWeight: 700, color: theme.navy }}>{v1.name}</div>
+            <div style={{ fontSize: 11, color: theme.slate, marginBottom: 12 }}>{v1.category}</div>
+            
+            <div style={{ fontSize: 10, color: theme.slate, textTransform: "uppercase", marginTop: 8 }}>Transactions</div>
+            <div style={{ fontSize: 18, fontWeight: 800, color: theme.navy }}>{v1.stats.transactions}</div>
+            
+            <div style={{ fontSize: 10, color: theme.slate, textTransform: "uppercase", marginTop: 8 }}>Fulfilment</div>
+            <div style={{ fontSize: 18, fontWeight: 800, color: theme.teal }}>{v1.stats.fulfilment}%</div>
+            
+            <div style={{ fontSize: 10, color: theme.slate, textTransform: "uppercase", marginTop: 8 }}>Rating</div>
+            <div style={{ fontSize: 18, fontWeight: 800, color: theme.amber }}>⭐ {v1.stats.rating}</div>
+
+            <button className="cta-btn secondary" style={{ marginTop: 16, padding: "8px", fontSize: 12 }} onClick={() => onSelect(compareSelections[0])}>View Profile</button>
+          </div>
+          
+          {/* Vendor 2 */}
+          <div className="card" style={{ padding: 12, textAlign: "center" }}>
+            <div className="vendor-avatar" style={{ width: 56, height: 56, margin: "0 auto 8px" }}>{v2.initials}</div>
+            <div style={{ fontSize: 14, fontWeight: 700, color: theme.navy }}>{v2.name}</div>
+            <div style={{ fontSize: 11, color: theme.slate, marginBottom: 12 }}>{v2.category}</div>
+            
+            <div style={{ fontSize: 10, color: theme.slate, textTransform: "uppercase", marginTop: 8 }}>Transactions</div>
+            <div style={{ fontSize: 18, fontWeight: 800, color: theme.navy }}>{v2.stats.transactions}</div>
+            
+            <div style={{ fontSize: 10, color: theme.slate, textTransform: "uppercase", marginTop: 8 }}>Fulfilment</div>
+            <div style={{ fontSize: 18, fontWeight: 800, color: theme.teal }}>{v2.stats.fulfilment}%</div>
+            
+            <div style={{ fontSize: 10, color: theme.slate, textTransform: "uppercase", marginTop: 8 }}>Rating</div>
+            <div style={{ fontSize: 18, fontWeight: 800, color: theme.amber }}>⭐ {v2.stats.rating}</div>
+
+            <button className="cta-btn secondary" style={{ marginTop: 16, padding: "8px", fontSize: 12 }} onClick={() => onSelect(compareSelections[1])}>View Profile</button>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="screen">
-      <div className="page-title">Trusted Directory</div>
-      <p className="page-sub">Find verified vendors for your next purchase.</p>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
+        <div>
+          <div className="page-title">Trusted Directory</div>
+          <p className="page-sub" style={{ marginBottom: 0 }}>Find verified vendors for your next purchase.</p>
+        </div>
+        <button 
+          onClick={() => setCompareMode(!compareMode)} 
+          style={{ background: compareMode ? theme.teal : "white", color: compareMode ? "white" : theme.navy, border: "1px solid #E2E8F0", padding: "6px 12px", borderRadius: 8, fontSize: 11, fontWeight: 600, cursor: "pointer" }}
+        >
+          {compareMode ? "Cancel" : "Compare"}
+        </button>
+      </div>
 
-      <div className="search-container">
+      <div className="search-container" style={{ marginBottom: 10 }}>
         <span style={{ fontSize: 18 }}>🔍</span>
         <input 
           className="search-input" 
@@ -1234,24 +1657,64 @@ function DirectoryScreen({ onSelect }: { onSelect: (id: string) => void }) {
         />
       </div>
 
+      <div style={{ display: "flex", gap: 8, marginBottom: 16, overflowX: "auto", paddingBottom: 4 }}>
+        <select className="form-input" style={{ marginBottom: 0, padding: "8px", fontSize: 12, minWidth: 100 }} value={sortBy} onChange={e => setSortBy(e.target.value as any)}>
+          <option value="txn">Sort: Volume</option>
+          <option value="fulfilment">Sort: Fulfilment</option>
+        </select>
+        <select className="form-input" style={{ marginBottom: 0, padding: "8px", fontSize: 12, minWidth: 100 }} value={filterLoc} onChange={e => setFilterLoc(e.target.value)}>
+          <option value="">All Locations</option>
+          <option value="Lagos">Lagos</option>
+          <option value="Abuja">Abuja</option>
+          <option value="Port Harcourt">Port Harcourt</option>
+        </select>
+        <select className="form-input" style={{ marginBottom: 0, padding: "8px", fontSize: 12, minWidth: 100 }} value={filterCap} onChange={e => setFilterCap(e.target.value)}>
+          <option value="">All Delivery</option>
+          <option value="Nationwide">Nationwide</option>
+          <option value="Intra-state">Intra-state</option>
+        </select>
+      </div>
+
+      {compareMode && (
+        <div style={{ background: theme.tealGlow, color: theme.teal, fontSize: 12, padding: 10, borderRadius: 8, marginBottom: 12, fontWeight: 600, textAlign: "center" }}>
+          Select 2 vendors to compare ({compareSelections.length}/2)
+        </div>
+      )}
+
       <div className="vendor-list">
         {filtered.map(([id, v]) => (
-          <div key={id} className="vendor-list-card" onClick={() => onSelect(id)}>
+          <div key={id} className="vendor-list-card" style={{ border: compareSelections.includes(id) ? `2px solid ${theme.teal}` : "2px solid transparent" }} onClick={() => {
+            if (compareMode) toggleCompare(id);
+            else onSelect(id);
+          }}>
             <div className="vendor-avatar" style={{ width: 48, height: 48, fontSize: 18, borderWidth: 2 }}>{v.initials}</div>
-            <div className="vendor-list-info">
-              <div className="vendor-list-name">{v.name} {v.stats.rating >= 4.5 && <span style={{color: theme.teal, fontSize: 12}}>✓</span>}</div>
-              <div className="vendor-list-handle">{v.handle} • {v.category}</div>
-              <div className="vendor-list-meta">
-                <span>⭐ {v.stats.rating}</span>
-                <span>📦 {v.stats.transactions} sales</span>
+            <div className="vendor-list-info" style={{ flex: 1 }}>
+              <div className="vendor-list-name">
+                {v.name} 
+                <span style={{color: theme.teal, fontSize: 12, display: "inline-flex", background: theme.tealGlow, padding: "2px 6px", borderRadius: 10, marginLeft: 6}}>✓ Verified</span>
+              </div>
+              <div className="vendor-list-handle" style={{ fontSize: 11, marginTop: 4 }}>
+                <span style={{ fontWeight: 800, color: theme.navy, fontSize: 13 }}>{v.stats.transactions}</span> txns
+                <span style={{ margin: "0 6px", color: "#CBD5E1" }}>|</span>
+                <span style={{ fontWeight: 800, color: theme.teal, fontSize: 13 }}>{v.stats.fulfilment}%</span> flfl
+              </div>
+              <div style={{ fontSize: 11, color: theme.slate, marginTop: 4, display: "flex", gap: 8 }}>
+                <span>⭐ {v.stats.rating} rating</span>
+                <span>💬 {(v.reviewsCount?.good || 0) + (v.reviewsCount?.neutral || 0) + (v.reviewsCount?.bad || 0)} reviews</span>
               </div>
             </div>
-            <div style={{ color: theme.slate, fontSize: 18 }}>→</div>
+            {compareMode ? (
+              <div style={{ width: 24, height: 24, borderRadius: "50%", border: `2px solid ${theme.teal}`, display: "flex", alignItems: "center", justifyContent: "center", background: compareSelections.includes(id) ? theme.teal : "transparent" }}>
+                {compareSelections.includes(id) && <span style={{ color: "white", fontSize: 12 }}>✓</span>}
+              </div>
+            ) : (
+              <div style={{ color: theme.slate, fontSize: 18 }}>→</div>
+            )}
           </div>
         ))}
         {filtered.length === 0 && (
           <div style={{ textAlign: "center", padding: "40px 20px", color: theme.slate, fontSize: 13 }}>
-            No vendors found matching &quot;{query}&quot;
+            No vendors found.
           </div>
         )}
       </div>
@@ -1264,163 +1727,226 @@ function ProfileScreen({ onContact, onCreateTx, vendor }: { onContact: () => voi
   const [timeTab, setTimeTab] = useState(0);
   const [activeTab, setActiveTab] = useState<"identity" | "catalogue" | "reviews">("identity");
   const timeTabs = ["Last 30 days", "3 months", "All time"];
+  const [expanded, setExpanded] = useState<Record<string, boolean>>({});
+
+  const toggleExpand = (key: string) => setExpanded(p => ({ ...p, [key]: !p[key] }));
 
   return (
-    <div className="screen">
-      {/* Vendor Header Card */}
-      <div className="card">
-        <div className="vendor-identity">
-          <div className="vendor-avatar">{vendor.initials}</div>
-          <div style={{ flex: 1 }}>
-            <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
-              <span className="vendor-name">{vendor.name}</span>
-              <span className="nova-badge">✓ NOVA Verified</span>
-            </div>
-            <div className="vendor-handle">{vendor.handle}</div>
-            <div className="vendor-location">📍 {vendor.location}</div>
-            <div style={{ marginTop: 6, display: "flex", gap: 6 }}>
-              <span className="chip">👗 {vendor.category}</span>
-              <span className="chip">📱 {vendor.platform}</span>
-            </div>
+    <div className="screen" style={{ padding: "0 0 100px 0" }}>
+      {/* VENDOR HEADER (WITH VIDEO AND BADGES) */}
+      <div className="vendor-profile-header">
+        <div className="cover-video-container">
+          {vendor.coverVideo ? (
+            <video src={vendor.coverVideo} className="cover-video" autoPlay loop muted playsInline />
+          ) : (
+            <div className="cover-video" style={{ background: "linear-gradient(135deg, #1A2540, #0F1628)" }} />
+          )}
+        </div>
+        <div className="vendor-avatar-overlap">{vendor.initials}</div>
+        
+        <div style={{ position: "absolute", top: 130, right: 20, display: "flex", flexWrap: "wrap", justifyContent: "flex-end", maxWidth: "200px" }}>
+          {vendor.verification.map((v, i) => {
+            if (v.type === "govId") return <span key={i} className="badge-icon badge-gov">🏛️ Gov ID</span>;
+            if (v.type === "cac") return <span key={i} className="badge-icon badge-cac">🏢 CAC</span>;
+            if (v.type === "smedan") return <span key={i} className="badge-icon badge-smedan">🏷️ SMEDAN</span>;
+            return null;
+          })}
+        </div>
+        
+        <div className="vendor-info-section">
+          <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap", marginBottom: 2 }}>
+            <span className="vendor-name" style={{ fontSize: 20 }}>{vendor.name}</span>
+            <span className="nova-badge">✓ Verified</span>
           </div>
+          <div className="vendor-handle">{vendor.handle} • {vendor.category}</div>
+          <div className="vendor-location" style={{ marginTop: 8 }}>
+            📍 {vendor.locationAddress ? `${vendor.locationAddress}, ${vendor.locationCity}` : vendor.location}
+          </div>
+          
+          <button className="share-btn" style={{ marginTop: 16 }} onClick={() => alert("Copied Profile Link!")}>
+            <span>🔗 Share Profile</span>
+          </button>
         </div>
       </div>
 
-      <div className="profile-tabs">
-        <div className={`profile-tab ${activeTab === "identity" ? "active" : ""}`} onClick={() => setActiveTab("identity")}>Trust Stack</div>
-        <div className={`profile-tab ${activeTab === "catalogue" ? "active" : ""}`} onClick={() => setActiveTab("catalogue")}>Catalogue</div>
-        <div className={`profile-tab ${activeTab === "reviews" ? "active" : ""}`} onClick={() => setActiveTab("reviews")}>Reviews</div>
-      </div>
-
-      {activeTab === "identity" && (
-        <div className="success-animation">
-          {/* Trust Strip */}
-          <div className="card">
-            <div className="time-toggle">
-              {timeTabs.map((t, i) => (
-                <button key={i} className={`time-btn ${timeTab === i ? "active" : ""}`} onClick={() => setTimeTab(i)}>{t}</button>
-              ))}
-            </div>
-            <div className="trust-strip">
-              <div className="trust-metric">
-                <div className="trust-number" style={{ color: theme.navy }}>{vendor.stats.transactions}</div>
-                <div className="trust-label">Transactions</div>
-              </div>
-              <div className="trust-metric">
-                <div className="trust-number" style={{ color: theme.amber }}>{vendor.stats.rating}★</div>
-                <div className="trust-label">Avg. Rating</div>
-              </div>
-              <div className="trust-metric">
-                <div className="trust-number" style={{ color: theme.teal }}>{vendor.stats.fulfilment}%</div>
-                <div className="trust-label">Fulfilment Rate</div>
-              </div>
-            </div>
-          </div>
-
-          {/* Attribute Breakdown */}
-          <div className="card">
-            {vendor.attributes.map((a: VendorAttribute, i: number) => (
-              <div key={i} className="attr-row">
-                <span className="attr-label">{a.label}</span>
-                <div className="attr-bar-bg">
-                  <div className="attr-bar-fill" style={{ width: `${a.pct}%` }} />
-                </div>
-                <span className="attr-pct">{a.pct}%</span>
-              </div>
-            ))}
-          </div>
-
-          {/* Verification */}
-          <div className="card verify-card">
-            <div className="section-title">Verification Status</div>
-            {vendor.verification.map((v: VendorVerification, i: number) => (
-              <div key={i} className="verify-item">
-                <div className="verify-check">
-                  <span style={{ color: theme.teal, fontSize: 11, fontWeight: 700 }}>✓</span>
-                </div>
-                <div className="verify-text">
-                  <strong>{v.label}</strong>
-                  <span>{v.desc}</span>
-                </div>
-              </div>
-            ))}
-          </div>
-
-          {/* Sales Activity */}
-          <div className="card">
-            <div className="section-title">Sales Activity</div>
-            <div className="sales-bar">
-              {vendor.sales.map((s: VendorSales, i: number) => (
-                <div key={i} className="sales-seg" style={{ width: `${s.pct}%`, background: s.color }}>
-                  {s.pct >= 15 ? `${s.label} ${s.pct}%` : ""}
-                </div>
-              ))}
-            </div>
-            <div className="sales-legend">
-              {vendor.sales.map((s: VendorSales, i: number) => (
-                <div key={i} className="legend-item">
-                  <div className="legend-dot" style={{ background: s.color }} />
-                  {s.label} — {s.pct}%
-                </div>
-              ))}
-            </div>
-          </div>
+      <div style={{ padding: "0 16px" }}>
+        <div className="profile-tabs">
+          <div className={`profile-tab ${activeTab === "identity" ? "active" : ""}`} onClick={() => setActiveTab("identity")}>Trust Stack</div>
+          <div className={`profile-tab ${activeTab === "catalogue" ? "active" : ""}`} onClick={() => setActiveTab("catalogue")}>Catalogue</div>
+          <div className={`profile-tab ${activeTab === "reviews" ? "active" : ""}`} onClick={() => setActiveTab("reviews")}>Reviews</div>
         </div>
-      )}
 
-      {activeTab === "catalogue" && (
-        <div className="success-animation">
-          <div className="catalogue-grid">
+        {activeTab === "identity" && (
+          <div className="success-animation">
+            {/* CIRCULAR METRICS */}
+            <div className="card">
+              <div className="section-title">Performance Metrics</div>
+              <div className="time-toggle">
+                {timeTabs.map((t, i) => (
+                  <button key={i} className={`time-btn ${timeTab === i ? "active" : ""}`} onClick={() => setTimeTab(i)}>{t}</button>
+                ))}
+              </div>
+              <div style={{ display: "flex", justifyContent: "space-around", marginTop: 16 }}>
+                {vendor.attributes.map((a, i) => {
+                  const cir = 2 * Math.PI * 25;
+                  const offset = cir - (a.pct / 100) * cir;
+                  return (
+                    <div key={i} className="circular-progress-wrap">
+                      <div style={{ position: "relative", width: 56, height: 56, display: "flex", justifyContent: "center" }}>
+                        <svg className="circle-svg">
+                          <circle className="circle-bg" cx="28" cy="28" r="25" />
+                          <circle className="circle-fill" cx="28" cy="28" r="25" strokeDasharray={cir} strokeDashoffset={offset} />
+                        </svg>
+                        <div className="circle-text">{a.pct}%</div>
+                      </div>
+                      <div className="circle-label">{a.label}</div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* LOCATION OVERVIEW */}
+            <div className="card">
+              <div className="section-title">Verified Location</div>
+              <div style={{ fontSize: 13, color: theme.navy, fontWeight: 500 }}>
+                {vendor.locationAddress}<br />
+                {vendor.locationCity}
+              </div>
+              <div className="map-placeholder">
+                <span className="map-pin">📍</span>
+                <button className="map-nav-btn" onClick={() => alert("Navigating to Google Maps...")}>Open Map →</button>
+              </div>
+            </div>
+
+            {/* VENDOR OPERATIONS (EXPANDABLE) */}
+            {vendor.operations && (
+              <div className="card">
+                <div className="section-title">Vendor Operations</div>
+                
+                <div className="expander-card">
+                  <div className="expander-header" onClick={() => toggleExpand("delivery")}>
+                    Delivery Scope
+                    <span>{expanded["delivery"] ? "▼" : "▶"}</span>
+                  </div>
+                  {expanded["delivery"] && <div className="expander-body">{vendor.operations.deliveryScope}</div>}
+                </div>
+
+                <div className="expander-card">
+                  <div className="expander-header" onClick={() => toggleExpand("payment")}>
+                    Payment Structure
+                    <span>{expanded["payment"] ? "▼" : "▶"}</span>
+                  </div>
+                  {expanded["payment"] && (
+                    <div className="expander-body">
+                      We support: {vendor.operations.paymentModels.join(", ")}
+                    </div>
+                  )}
+                </div>
+
+                <div className="expander-card">
+                  <div className="expander-header" onClick={() => toggleExpand("refund")}>
+                    Refund Policies
+                    <span>{expanded["refund"] ? "▼" : "▶"}</span>
+                  </div>
+                  {expanded["refund"] && <div className="expander-body">{vendor.operations.refundPolicy}</div>}
+                </div>
+
+                <div className="expander-card" style={{ marginBottom: 0 }}>
+                  <div className="expander-header" onClick={() => toggleExpand("desc")}>
+                    Business Description
+                    <span>{expanded["desc"] ? "▼" : "▶"}</span>
+                  </div>
+                  {expanded["desc"] && <div className="expander-body">{vendor.operations.businessDesc}</div>}
+                </div>
+
+                <div className="social-grid">
+                  {Object.keys(vendor.operations.socials).map(s => (
+                    <button key={s} className="social-btn" onClick={() => alert("Redirecting to " + s)}>
+                      {s.charAt(0).toUpperCase() + s.slice(1)}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+
+        {activeTab === "catalogue" && (
+          <div className="success-animation">
             {vendor.catalogue && vendor.catalogue.length > 0 ? (
-              vendor.catalogue.map(item => (
-                <div key={item.id} className="catalogue-item">
-                  <div className="catalogue-img" style={{ backgroundImage: `url(${item.image})` }} />
-                  <div className="catalogue-info">
-                    <div className="catalogue-title">{item.title}</div>
-                    <div className="catalogue-price">₦{parseInt(item.price).toLocaleString()}</div>
+              <div className="media-feed">
+                {vendor.catalogue.map((item, i) => (
+                  <div key={i} className="media-card">
+                    <img src={item.image} className="media-img" alt={item.title} />
+                    <div className="media-overlay">
+                      <div className="media-price">₦{parseInt(item.price).toLocaleString()}</div>
+                      <div className="media-title">{item.title}</div>
+                    </div>
+                    {item.inStock !== undefined && (
+                      <div className={`stock-indicator ${item.inStock ? 'stock-in' : 'stock-out'}`}>
+                        {item.inStock ? "In Stock" : "Out of Stock"}
+                      </div>
+                    )}
                   </div>
-                </div>
-              ))
+                ))}
+              </div>
             ) : (
-              <div style={{ gridColumn: "span 2", textAlign: "center", padding: "40px 20px", color: theme.slate, fontSize: 13 }}>
-                No items in catalogue yet.
+              <div style={{ textAlign: "center", padding: "40px 20px", color: theme.slate, fontSize: 13 }}>
+                No posts available.
               </div>
             )}
           </div>
-        </div>
-      )}
+        )}
 
-      {activeTab === "reviews" && (
-        <div className="success-animation">
-          <div className="card">
-            <div className="section-title">Buyer Reviews</div>
-            {vendor.reviews && vendor.reviews.length > 0 ? (
-              vendor.reviews.map((r: VendorReview, i: number) => (
-                <div key={i} className="review-card">
-                  <div className="review-header">
-                    <span className="reviewer-name">{r.name}</span>
-                    <Stars count={r.stars} />
-                  </div>
-                  <p className="review-text">&quot;{r.text}&quot;</p>
-                  {r.image && <img src={r.image} className="review-img" alt="Review attachment" />}
+        {activeTab === "reviews" && (
+          <div className="success-animation">
+            <div className="card">
+              <div className="section-title">Review Volume Summary</div>
+              <div className="review-segments">
+                <div className="segment-pill">
+                  <div className="segment-val" style={{ color: theme.teal }}>{vendor.reviewsCount?.good || 0}</div>
+                  <div className="segment-label">Good 👍</div>
                 </div>
-              ))
-            ) : (
-              <div style={{ textAlign: "center", padding: "20px", color: theme.slate, fontSize: 13 }}>
-                No reviews yet.
+                <div className="segment-pill">
+                  <div className="segment-val" style={{ color: theme.amber }}>{vendor.reviewsCount?.neutral || 0}</div>
+                  <div className="segment-label">Neutral 😐</div>
+                </div>
+                <div className="segment-pill">
+                  <div className="segment-val" style={{ color: theme.rose }}>{vendor.reviewsCount?.bad || 0}</div>
+                  <div className="segment-label">Bad 👎</div>
+                </div>
               </div>
-            )}
+              
+              <div className="section-title" style={{ marginTop: 16 }}>Detailed Reviews</div>
+              {vendor.reviews && vendor.reviews.length > 0 ? (
+                vendor.reviews.map((r: VendorReview, i: number) => (
+                  <div key={i} className="review-card">
+                    <div className="review-header">
+                      <span className="reviewer-name">{r.name}</span>
+                      <Stars count={r.stars} />
+                    </div>
+                    <p className="review-text">&quot;{r.text}&quot;</p>
+                    {r.image && <img src={r.image} className="review-img" alt="Review attachment" />}
+                  </div>
+                ))
+              ) : (
+                <div style={{ textAlign: "center", padding: "20px", color: theme.slate, fontSize: 13 }}>
+                  No detailed reviews.
+                </div>
+              )}
+            </div>
           </div>
-        </div>
-      )}
+        )}
 
-      {/* CTAs */}
-      <div style={{ marginTop: 24 }}>
-        <button className="cta-btn" onClick={onContact}>Contact Vendor on WhatsApp</button>
-        <p className="cta-sub">🔒 Transactions on NOVA are protected</p>
-        <button className="cta-btn secondary" style={{ marginTop: 10 }} onClick={onCreateTx}>
-          + Create NOVA Transaction
-        </button>
+        {/* CTAs */}
+        <div style={{ marginTop: 24, paddingBottom: 24 }}>
+          <button className="cta-btn" onClick={onContact}>Contact Vendor on WhatsApp</button>
+          <p className="cta-sub">🔒 Transactions on NOVA are protected</p>
+          <button className="cta-btn secondary" style={{ marginTop: 10 }} onClick={onCreateTx}>
+            + Create NOVA Transaction
+          </button>
+        </div>
       </div>
     </div>
   );
@@ -1658,11 +2184,21 @@ function TrackingScreen({ vendor, onReview }: { vendor: Vendor; onReview: () => 
       <div className="page-title">Order Tracking</div>
       <p className="page-sub">Live updates from {vendor.name} on your order.</p>
 
+      {/* Public Shareable Link Feature */}
+      <div className="card" style={{ background: theme.tealGlow, borderColor: theme.teal }}>
+        <div className="section-title" style={{ color: theme.teal }}>Share Tracking Link</div>
+        <p style={{ fontSize: 12, color: theme.navy, marginBottom: 10 }}>Share this link with your buyer or a recipient. They can track the order without installing the app or signing up.</p>
+        <div style={{ display: "flex", gap: 8 }}>
+          <input className="form-input" style={{ marginBottom: 0, flex: 1, fontSize: 13, color: theme.slate }} value="https://nova.app/t/tx8823" readOnly />
+          <button className="cta-btn" style={{ padding: "0 16px", background: theme.teal, width: "auto" }} onClick={() => alert("Tracking link copied to clipboard!")}>Copy</button>
+        </div>
+      </div>
+
       <div className="card">
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
           <div>
             <div style={{ fontSize: 12, color: theme.slate, marginBottom: 4 }}>Transaction</div>
-            <div style={{ fontFamily: "sans-serif", fontWeight: 700, color: theme.teal, fontSize: 14 }}>NOVA-TX8823</div>
+            <div style={{ fontFamily: "sans-serif", fontWeight: 700, color: theme.navy, fontSize: 14 }}>NOVA-TX8823</div>
           </div>
           <span className="status-pill status-pending">⏳ In Progress</span>
         </div>
